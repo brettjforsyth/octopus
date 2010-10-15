@@ -1,3 +1,6 @@
+/*
+	Author: Brett Forsyth
+*/
 package
 {
 	
