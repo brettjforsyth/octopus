@@ -14,8 +14,8 @@ package
 		public function octopus2()
 		{
 			trace("blah 2");
-			var ca:ChainArray = new ChainArray();
-			addChild(ca);
+			/*var ca:ChainArray = new ChainArray();
+			addChild(ca);*/
 			/*var ms:MultiSpring = new MultiSpring();
 			addChild(ms);*/
 			//var os:OffsetSpring = new OffsetSpring();
@@ -24,12 +24,12 @@ package
 			/*var s5:Spring5 = new Spring5();
 			addChild(s5);*/
 			
-			/*for(var i:int = 0; i<1; i++){
+			for(var i:int = 0; i<8; i++){
 				var t:Tentacle = new Tentacle();
 				t.y = (i * 40)+100;
 				this.addChild(t);
 				
-			}*/
+			}
 			/*var r:MultiSegmentReach = new MultiSegmentReach();
 			addChild(r);
 			
@@ -38,12 +38,13 @@ package
 			
 			var cp:CurveThroughPoint = new CurveThroughPoint();
 			addChild(cp);*/
-			var fr:FPS = new FPS();
+			/*var fr:FPS = new FPS();
 			fr.x = 300;
 			fr.y = 300;
 			
 			
-			this.addChild(fr);
+			this.addChild(fr);*/
+			addChild(new Stats());
 		}
 	}
 }
