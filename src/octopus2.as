@@ -6,7 +6,7 @@ package
 	
 	import flash.display.Sprite;
 	
-	[SWF(backgroundColor=0xffffff, height=1000, width=1000, frameRate=64)]
+	[SWF(backgroundColor=0xffffff, height=1000, width=2000, frameRate=64)]
 	
 	public class octopus2 extends Sprite
 	{
@@ -30,9 +30,9 @@ package
 				this.addChild(t);
 				
 			}
-			/*var r:MultiSegmentReach = new MultiSegmentReach();
+			var r:MultiSegmentReach = new MultiSegmentReach();
 			addChild(r);
-			
+			/*
 			var mc:MultiCurves3Filled = new MultiCurves3Filled();
 			addChild(mc);
 			

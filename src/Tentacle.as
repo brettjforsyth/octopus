@@ -24,16 +24,24 @@ package
 	public class Tentacle extends Sprite
 	{
 		private var pts:Vector.<MovieClip> = new Vector.<MovieClip>();
-		private var r:Number;
+		private var r:Number = 5; //width of the tenticle at the widest point
 		private var curvePoints:Array = [];
 		private var g:Graphics = graphics;
 		private var color:uint = 0x66ffff;
 		private var dragProps:Object;
 		private var rtod:Number = Math.PI*180;
+		private var numSegments:int = 10;
+		private var segmentSpacing:int = 50; //Temporary. This spacing will be specific to each anchor. To be replaced
+		
+		//Objects that get created all the time time but recycled.
+		private var midPoint:Point = new Point();
+		private var ret:Point = new Point();
 		
 		public function Tentacle()
 		{
-			trace("blah")
+			/*
+				initialize the tenticle when added to stage
+			*/
 			if(null == stage) {
 				addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
 			} else {
@@ -49,17 +57,22 @@ package
 		}
 		
 		private function init():void{
-			for(var i:int = 0; i < 10; i++){
+			/*
+				Create the tenticle anchor points, in this case movieclips.
+				These anchor points currently are draggable and stored in an vector
+				
+			*/
+			
+			for(var i:int = 0; i < numSegments; i++){
 				var a:Anchor = new Anchor();
-				a.x = 100*i;
+				a.x = segmentSpacing*i;
 				//a.y = 200;
 				pts.push(a);
 				addChild(a);
 			}
-			//r = pts[0].width / 2;
-			r = 10;
 			this.addEventListener(MouseEvent.MOUSE_DOWN,handlePress,false,0,true);
 			this.removeEventListener(Event.ADDED_TO_STAGE,onAddedToStage);
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			draw();
 		}
 		
@@ -189,7 +202,7 @@ package
 				
 				if (pt2)
 				{
-					mid = getMiddlePoint(pt1,pt2);
+					mid = Point.interpolate(pt1,pt2,.5);
 				}
 				
 				// begin
@@ -215,7 +228,7 @@ package
 		
 		private function getMiddlePoint(pt1:Object,pt2:Object):Point
 		{
-			var midpt:Point = new Point(pt1.x+(pt2.x-pt1.x)/2,pt1.y+(pt2.y-pt1.y)/2);
+			var midpt:Point = new Point(pt1.x+(pt2.x-pt1.x)*.5,pt1.y+(pt2.y-pt1.y)*.5);
 			return midpt;
 		}
 		
@@ -226,7 +239,10 @@ package
 				return null;
 			}
 			
+			//LOOK INTO:: Why does using an existing point object instead of a new one cause rendering issues.
 			var ret:Point = new Point( b.y - a.y, -(b.x - a.x) );
+			//ret.x = b.y - a.y;
+			//ret.y = -(b.x - a.x)
 			ret.normalize( 1 );
 			
 			return ret;
@@ -246,6 +262,9 @@ package
 		
 		private function doDrag(evt:MouseEvent):void
 		{
+			/*
+				Reposition the anchor to the mouse and redraw the curves.
+			*/
 			dragProps.target.x = mouseX;
 			dragProps.target.y = mouseY;
 			draw();
@@ -257,6 +276,45 @@ package
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE,doDrag);
 			stage.removeEventListener(MouseEvent.MOUSE_UP,endDrag);
 		}
+		
+		private function onEnterFrame(event:Event):void
+		{
+			var target:Point = reach(pts[numSegments-2], mouseX, mouseY);
+			for(var i = numSegments-2; i > 0; i--)
+			{
+				var segment:MovieClip = pts[i-1];
+				target = reach(segment, target.x, target.y);
+			}
+			for(var i:uint = 0; i < numSegments-1; i++)
+			{
+				var segmentA:MovieClip = pts[i];
+				var segmentB:MovieClip = pts[i + 1];
+				position(segmentB, segmentA);
+			}
+			
+			draw();
+		}
+		
+		private function reach(segment:MovieClip, xpos:Number, ypos:Number):Point
+		{
+			var dx:Number = xpos - segment.x;
+			var dy:Number = ypos - segment.y;
+			var angle:Number = Math.atan2(dy, dx);
+			segment.rotation = angle * 180 / Math.PI;
+			
+			var w:Number = (Math.cos(angle)*segmentSpacing);
+			var h:Number = (Math.sin(angle)*segmentSpacing);
+			var tx:Number = xpos - w;
+			var ty:Number = ypos - h;
+			return new Point(tx, ty);
+		}
+		
+		private function position(segmentA:MovieClip, segmentB:MovieClip):void
+		{
+			segmentA.x = segmentB.x + Math.cos(segmentB.rotation*Math.PI/180)*segmentSpacing; //see notes on segmentSpacing
+			segmentA.y = segmentB.y + Math.sin(segmentB.rotation*Math.PI/180)*segmentSpacing;
+		}
+		
 	}
 }
 
